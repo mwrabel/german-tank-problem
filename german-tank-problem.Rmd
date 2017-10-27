@@ -1,54 +1,53 @@
-German Tank Problem
-================
-
-Backstory
----------
-
+---
+title: "German Tank Problem"
+output: github_document
+#output:
+#  html_document: default
+#  html_notebook: default
+#  pdf_document: default
+---
+## Backstory
 #### Hard times
-
 During World War II, when the outcome was still unclear, Allies faced many intelligence challenges. One of them was later called “German Tank Problem” and made it into the history of statistics. The question was: how to estimate the total number of produced German tanks during years 1940-1942.
 
-Most of the time Shermans were no match for German Panzers, so this information regarding enemy’s potential was crucial. According to estimations brought by spies, informants and reconnaissance flights, there were whooping 1400 tanks produced a month. As it turned out, they were horribly wrong, what could have significant repercussions for Allies.
+Most of the time Shermans were no match for German Panzers, so this information regarding enemy’s potential was crucial. According to estimations brought by spies, informants and  reconnaissance flights, there were whooping 1400 tanks produced a month. As it turned out, they were horribly wrong, what could have significant repercussions for Allies.
 
 #### Fortunately, they had statisticians on board
-
-While exploring German tanks wreckages, a pattern was spotted on spare parts’ serial numbers. Slowly, but surely, pattern unraveled and statisticians recognized that the it followed uniform discrete distribution (N = 1, 2, 3, 4, …).
+While exploring German tanks wreckages, a pattern was spotted on spare parts’ serial numbers. Slowly, but surely, pattern unraveled and statisticians recognized that the it followed uniform discrete distribution (N = 1, 2, 3, 4, …). 
 
 Once recognized, estimating total numbers of tanks produced started to be relatively easy. Uniform discrete distribution properties were well known back then, as the formula for the total number of tanks, alias the maximum of distribution:
 
-*n* = *s**a**m**p**l**e*
-*k* = *s**a**m**p**l**e*.*s**i**z**e*
 $$
-maximum = max(n) + \\frac{\\sum\\limits\_{i=1}^{k-1} n\_{i+1} - n\_i}{k-1} - 1
+n = sample
 $$
- What could be understood intuitively as the sample maximum plus the average gap between observations in the sample or rewritten as:
 $$
-maximum = max(n) + \\frac{max(n)}{k} - 1
+k = sample.size
 $$
- We’ll try to recreate World War II statisticians’ effort in R.
+$$
+maximum = max(n) + \frac{\sum\limits_{i=1}^{k-1} n_{i+1} - n_i}{k-1} - 1
+$$
+What could be understood intuitively as the sample maximum plus the average gap between observations in the sample or rewritten as:
+$$
+maximum = max(n) + \frac{max(n)}{k} - 1
+$$
+We’ll try to recreate World War II statisticians’ effort in R.
 
-Let's get started
------------------
+## Let's get started
 
 #### Libraries needed
-
-``` r
+```{r}
 library(moments)
 ```
 
 #### Clears environment, sets seed
-
-``` r
+```{r}
 rm(list = ls())
 seed = 1939
 ```
 
-Simple approach
----------------
-
-#### Guess maximum function
-
-``` r
+## Simple approach
+#### Guess maximum function 
+```{r}
 guess_maximum <- function(sample_size, sample_maximum) {
 
   # discrete uniform distribution in R - without replacement 
@@ -69,33 +68,23 @@ guess_maximum <- function(sample_size, sample_maximum) {
   return(guessed_max)
 }
 ```
-
-Let's assume that we know the distribution already and destroyed 50 tanks with serial numbers. Total number of tanks that we're trying to guess is 500.
-
-``` r
+Let's assume that we know the distribution already and destroyed 50 tanks with serial numbers.
+Total number of tanks that we're trying to guess is 500.
+```{r}
 guess_maximum(sample_size = 50, sample_maximum = 500)
 ```
-
-    ## [1] 509.0612
-
 Not so far from known maximum. Now, let's harden the task with assumption that we found only 5 tanks out of 500 produced:
-
-``` r
+```{r}
 guess_maximum(sample_size = 5, sample_maximum = 500)
 ```
-
-    ## [1] 595
-
 Even with a small fraction of tanks, we're able to estimate tanks number with considerably small error which is at least an order of magnitude more precise than the intelligence estimates.
 
-Simulation approach
--------------------
+## Simulation approach
 
 First results are very close to the real maximum - in this section we'll try this approach in simulation environment to check if the estimated maximum averaged over numerous simulations converges to real value.
 
 #### Guess maximum function with simulation loop
-
-``` r
+```{r}
 guess_maximum_simulation <- function(sample_size, sample_maximum) {
   
   # calls empty numeric vector for single estimates
@@ -127,29 +116,22 @@ guess_maximum_simulation <- function(sample_size, sample_maximum) {
 }
 ```
 
-Let's assume that we know the distribution already and destroyed 50 tanks with numbers. Total number of tanks that we're trying to guess is 500.
-
-``` r
+Let's assume that we know the distribution already and destroyed 50 tanks with numbers.
+Total number of tanks that we're trying to guess is 500.
+```{r}
 guess_maximum_simulation(sample_size = 50, sample_maximum = 500)
 ```
-
-    ## [1] 499.9095
-
 The precision here is astonishingly good. Now, let's recreate it again, under the scarce information conditions:
-
-``` r
+```{r}
 guess_maximum_simulation(sample_size = 5, sample_maximum = 500)
 ```
 
-    ## [1] 500.7577
-
 Even in case of dataset with scarce, the averaged result is very precise. That proves robustness of this method - in theoretical situation with 10 000 sets of samples.
 
-#### Density plot
+#### Density plot 
 
 Guess maximum function redefined to output vector of single estimates
-
-``` r
+```{r}
 guess_maximum_simulation_n <- function(sample_size, sample_maximum) {
   
   # calls empty numeric vector for single estimates
@@ -182,60 +164,36 @@ guess_maximum_simulation_n <- function(sample_size, sample_maximum) {
 ```
 
 Vector of 1000 estimates with sample = 200 each
-
-``` r
+```{r}
 sample_200 <- guess_maximum_simulation_n(sample_size = 200, sample_maximum = 500)
 ```
 
 Vector of 1000 estimates with sample = 50 each
-
-``` r
+```{r}
 sample_50 <- guess_maximum_simulation_n(sample_size = 50, sample_maximum = 500)
 ```
 
 Vector of 1000 estimates with sample = 5 each
-
-``` r
+```{r}
 sample_5 <- guess_maximum_simulation_n(sample_size = 5, sample_maximum = 500)
 ```
 
 Simulation results plotted in histogram / density plots for further investigation
-
-``` r
+```{r}
 hist(sample_200, breaks = 12, col = "red")
-```
-
-![](german-tank-problem_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-13-1.png)
-
-``` r
 hist(sample_50, breaks = 12, col = "red")
-```
-
-![](german-tank-problem_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-13-2.png)
-
-``` r
 hist(sample_5, breaks = 12, col = "red")
 ```
 
-![](german-tank-problem_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-13-3.png)
-
 As you can see, the density plot is highly skewed to the left (negatively)
-
-``` r
+```{r}
 skewness(sample_50)
 ```
-
-    ## [1] -1.869886
-
-``` r
+```{r}
 kurtosis(sample_50)
 ```
 
-    ## [1] 8.230055
+## Conclusion
+This approach to estimation the maxiumum of sample was proved to be a robust and replicable one. It was once again used during World War II with estimating a total number of V2 rockets. After WWII this kind of analysis were used also during Korean War or even while estimating total number of Commodore 64 computers built. 
 
-Conclusion
-----------
-
-This approach to estimation the maxiumum of sample was proved to be a robust and replicable one. It was once again used during World War II with estimating a total number of V2 rockets. After WWII this kind of analysis were used also during Korean War or even while estimating total number of Commodore 64 computers built.
-
-You can find out more on German Tank Problem in Wikipedia: <https://en.wikipedia.org/wiki/German_tank_problem> .
+You can find out more on German Tank Problem in Wikipedia: https://en.wikipedia.org/wiki/German_tank_problem . 
