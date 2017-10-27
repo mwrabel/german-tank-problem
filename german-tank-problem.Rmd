@@ -17,19 +17,20 @@ While exploring German tanks wreckages, a pattern was spotted on spare parts’ 
 
 Once recognized, estimating total numbers of tanks produced started to be relatively easy. Uniform discrete distribution properties were well known back then, as the formula for the total number of tanks, alias the maximum of distribution:
 
-$$
-n = sample
-$$
-$$
-k = sample.size
-$$
-$$
-maximum = max(n) + \frac{\sum\limits_{i=1}^{k-1} n_{i+1} - n_i}{k-1} - 1
-$$
+![n & k](img/nk.png)
+
+![Maximum equation](img/math.png)
+```{r}
+# LaTeX code:
+# maximum = max(n) + \frac{\sum\limits_{i=1}^{k-1} n_{i+1} - n_i}{k-1} - 1
+```
 What could be understood intuitively as the sample maximum plus the average gap between observations in the sample or rewritten as:
-$$
-maximum = max(n) + \frac{max(n)}{k} - 1
-$$
+
+![Maximum](img/maximum.png)
+```{r}
+# LaTeX code:
+# maximum = max(n) + max(n)/k - 1
+```
 We’ll try to recreate World War II statisticians’ effort in R.
 
 ## Let's get started
@@ -42,7 +43,7 @@ library(moments)
 #### Clears environment, sets seed
 ```{r}
 rm(list = ls())
-seed = 1939
+seed = 1940
 ```
 
 ## Simple approach
